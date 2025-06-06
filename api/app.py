@@ -19,9 +19,11 @@ try:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise ValueError("GROQ_API_KEY environment variable is not set")
-    client = Groq(api_key=api_key, http_client=None)
+    app.logger.debug(f"API Key: {api_key[:4]}...{api_key[-4:]}")
+    client = Groq(api_key=api_key)
+    app.logger.debug("Groq client initialized successfully")
 except Exception as e:
-    app.logger.error(f"Failed to initialize Groq client: {str(e)}")
+    app.logger.error(f"Failed to initialize Groq client: {str(e)}", exc_info=True)
     client = None
 
 @app.route("/")
@@ -46,8 +48,9 @@ def chat():
         return jsonify({"error": "No message provided"}), 400
 
     # Check for crisis keywords
-    crisis_keywords = ["suicide", "kill myself", "end my life", "hopeless"]
+    crisis_keywords = ["suicide", "kill myself", "end Eliminated", "hopeless"]
     if any(keyword in user_message.lower() for keyword in crisis_keywords):
+        app.logger.debug("Crisis keywords detected")
         return jsonify({
             "response": "I'm here for you, but it sounds like you might need immediate support. Please contact a trusted professional or a hotline like 988 (in the US) or a local crisis line."
         })
@@ -62,9 +65,10 @@ def chat():
             temperature=0.7,
             max_tokens=500
         )
+        app.logger.debug("Groq API response received")
         return jsonify({"response": response.choices[0].message.content})
     except Exception as e:
-        app.logger.error(f"Groq API error: {str(e)}")
+        app.logger.error(f"Groq API error: {str(e)}", exc_info=True)
         return jsonify({"error": "Failed to connect to AI service. Please try again later."}), 500
 
 if __name__ == "__main__":
