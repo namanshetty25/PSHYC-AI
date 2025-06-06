@@ -3,7 +3,7 @@ from groq import Groq
 import os
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
-client = Groq(api_key=os.getenv("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"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # System prompt for AI psychologist
 SYSTEM_PROMPT = """
