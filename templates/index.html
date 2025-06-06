@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Psychologist</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Psychologist</h1>
+        <p>This is not a substitute for professional help. For serious issues, please consult a licensed therapist.</p>
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="How are you feeling today?">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("user-input").value;
+            const chatBox = document.getElementById("chat-box");
+            if (!input) return;
+
+            // Display user message
+            chatBox.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
+            document.getElementById("user-input").value = "";
+
+            // Send message to backend
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: input })
+            });
+            const data = await response.json();
+            chatBox.innerHTML += `<p><strong>AI:</strong> ${data.response || data.error}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
